@@ -6,13 +6,27 @@ ap::AtPath::AtPath(sf::Vector2f start, sf::Vector2f stop){
     origin = start; destination = stop;
 }
 
-void ap::AtPath::reset(){
+void ap::AtPath::reset(bool hard){
     positive_points.clear();
     negative_points.clear();
-    path.clear();
+    if(hard) routes.clear();
+}
+
+std::vector<sf::Vector2f> ap::AtPath::getBestRoute(){
+    std::vector<sf::Vector2f> best_route;
+    for(std::vector<sf::Vector2f> r : routes){
+        if(getCost(r) < getCost(best_route) || getCost(best_route) == 0) best_route = r;
+    }
+    return best_route;
+}
+
+void ap::AtPath::writeRoute(std::vector<sf::Vector2f> write_route){
+    for(std::vector<sf::Vector2f> r : routes){if(getCost(r) == getCost(write_route)) return;}
+    routes.push_back(write_route);
 }
 
 std::vector<sf::Vector2f> ap::AtPath::improve_route(int cycles){
+    std::vector<sf::Vector2f> path = getBestRoute();
     if(path.size() == 0) return path;
     std::vector<std::vector<sf::Vector2f>> contenders;
     contenders.push_back(path);
@@ -32,15 +46,18 @@ std::vector<sf::Vector2f> ap::AtPath::improve_route(int cycles){
 }
 
 std::vector<sf::Vector2f> ap::AtPath::reroute(int cycles){
-    std::vector<sf::Vector2f> old_path = path;
+    std::vector<sf::Vector2f> old_path;
+    if(routes.size() > 0) old_path = routes.back();
     reset();
     for(int i{0}; i < 4; i++) {for(sf::Vector2f n : old_path) negative_points.push_back(n);}
-    return route(cycles);
+    std::vector<sf::Vector2f> r = route(cycles);
+    writeRoute(r);
+    return r;
 }
 
 
 std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
-
+    std::vector<sf::Vector2f> best_route;
     for(int tries{0}; tries < cycles; tries++){
         std::vector<sf::Vector2f> nodes;
         sf::Vector2f head{origin};
@@ -50,7 +67,7 @@ std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
             
             sf::Vector2f best{head};
 
-            for(int ang{0}; ang < 360; ang += 5){
+            for(int ang{0}; ang < 360; ang += 10){
                 sf::Vector2f test{head};
                 test.x += cos(ang) * increment; test.y += sin(ang) * increment;
                 if(isValid(test) && getPointWeight(test) + 50.f * (1/getDistance(test,destination)) > getPointWeight(best) + 50.f * (1/getDistance(best,destination)))
@@ -68,16 +85,17 @@ std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
             if(nodes.size() > 1000) stop = true; //Overflow detection. Can hinder long routes though.
         }
         nodes = SimplifyNodes(nodes);
-        if(!checkPath(path)) path = nodes;
-        if(checkPath(nodes)){if(getCost(nodes) < getCost(path)) path = nodes;}
+        if(!checkPath(best_route)) best_route = nodes;
+        if(checkPath(nodes)){if(getCost(nodes) < getCost(best_route)) best_route = nodes;}
 
         //Apply new weights
         if(checkPath(nodes)){for(sf::Vector2f n : nodes) positive_points.push_back(n);}
         else{for(sf::Vector2f n : nodes) negative_points.push_back(n);}
-        std::cout << getCost(path) << "(" << checkPath(nodes) << ")" << std::endl;
+        std::cout << getCost(best_route) << "(" << checkPath(nodes) << ")" << std::endl;
         std::cout << "+" << negative_points.size() << " | -" << negative_points.size() << std::endl; 
     }
-    return path;
+    writeRoute(best_route);
+    return best_route;
 }
 
 
@@ -107,6 +125,7 @@ bool ap::AtPath::checkPath(std::vector<sf::Vector2f> path){
 }
 
 std::vector<sf::Vector2f> ap::AtPath::SimplifyNodes(std::vector<sf::Vector2f> nodes){
+
     std::vector<sf::Vector2f> marked_for_deletion;
     for(int i{0}; i < nodes.size(); i++){
         if(i != 0 && i < nodes.size() - 1){

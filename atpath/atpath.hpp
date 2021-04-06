@@ -10,6 +10,7 @@ namespace ap{
         private:
             std::vector<sf::Vector2f> positive_points;
             std::vector<sf::Vector2f> negative_points;
+            void writeRoute(std::vector<sf::Vector2f> write_route); 
             float getPointWeight(sf::Vector2f point); //Get the current weight of a location
             bool checkPath(std::vector<sf::Vector2f> path);//Check to ensure that a path is valid
             float getCost(std::vector<sf::Vector2f> path);//Calculate the cost of a path
@@ -24,7 +25,8 @@ namespace ap{
             sf::Vector2f destination;
             AtPath(sf::Vector2f start, sf::Vector2f stop);
             std::vector<sf::Vector2f> route(int cycles=200); //Generates a route or improves an existing one
-            void reset(); //Reset path learning (use if the destination, obstacles, or origin has changed)
+            std::vector<sf::Vector2f> getBestRoute();
+            void reset(bool hard = false); //Reset path learning (use if the destination, obstacles, or origin has changed)
             std::vector<sf::Vector2f> reroute(int cycles=200);
             std::vector<sf::Vector2f> improve_route(int cycles=1); //Light weight task meant to improve upon and/or find better routes in the background
     };
