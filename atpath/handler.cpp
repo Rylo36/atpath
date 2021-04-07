@@ -1,13 +1,9 @@
-#include "atpath.hpp"
-#define QUICK_MODE 1
+#include "handler.hpp"
+
 
 
 ap::AtPath::AtPath(sf::Vector2f start, sf::Vector2f stop){
     origin = start; destination = stop;
-}
-
-int ap::AtPath::getMS(){
-    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 void ap::AtPath::reset(bool hard){
@@ -39,49 +35,7 @@ std::vector<sf::Vector2f> ap::AtPath::reroute(int cycles){
     return r;
 }
 
-std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
-    std::vector<sf::Vector2f> best_route;
-    for(int tries{0}; tries < cycles; tries++){
-        std::vector<sf::Vector2f> nodes;
-        sf::Vector2f head{origin};
-        bool stop = false;
-        while(getDistance(head, destination) > 10.f && !stop){
-            float increment{10.f};
-            
-            sf::Vector2f best{head};
 
-            for(int ang{0}; ang < 360; ang += 10){
-                sf::Vector2f test{head};
-                test.x += cos(ang) * increment; test.y += sin(ang) * increment;
-                if(isValid(test) && getPointWeight(test) + 50.f * (1/getDistance(test,destination)) > getPointWeight(best) + 50.f * (1/getDistance(best,destination)))
-                    best = test;
-            }
-
-            if(best != head){nodes.push_back(best); head = best;}
-            else{
-                //Oh no we might be stuck in a bad path
-                if(getDistance(head,destination) > 10.f) stop = true; //Check to ensure that we are not at the destination, then declare this path a fail
-                    
-                    
-            }
-            if(nodes.size() > 1000) stop = true; //Overflow detection. Can hinder long routes though.
-        }
-        nodes = SimplifyNodes(nodes);
-        if(!checkPath(best_route)) best_route = nodes;
-        if(checkPath(nodes)){if(getCost(nodes) < getCost(best_route)) best_route = nodes;}
-
-        //Apply new weights
-        if(checkPath(nodes)){
-            positive_points.insert(positive_points.end(), nodes.begin(), nodes.end());
-            if(QUICK_MODE){writeRoute(best_route); return nodes;}
-        }
-        else negative_points.insert(negative_points.end(), nodes.begin(), nodes.end());
-        std::cout << getCost(best_route) << "(" << checkPath(nodes) << ")" << std::endl;
-        std::cout << "+" << positive_points.size() << " | -" << negative_points.size() << std::endl; 
-    }
-    writeRoute(best_route);
-    return best_route;
-}
 
 float ap::AtPath::getPointWeight(sf::Vector2f point){
     float weight{0.f};
@@ -144,6 +98,7 @@ bool ap::AtPath::isValid(sf::Vector2f point){
 }
 
 void ap::AtPath::realtime(){
+    pf.update();
     if(routes.size() == 0) route(1);
-    if(routes.size() < 4) reroute(1);
+    if(routes.size() < 4 && pf.load < 0.3f) reroute(1);
 }

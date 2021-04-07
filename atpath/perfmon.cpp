@@ -3,7 +3,7 @@
 Tmr::Tmr(int t_fps){target_fps = t_fps;}
 
 void Tmr::clean_history(){
-    while(fps_history.size() > 300) fps_history.erase(fps_history.begin());
+    while(fps_history.size() > 3) fps_history.erase(fps_history.begin());
 }
 
 int Tmr::getE(){
@@ -20,7 +20,8 @@ void Tmr::update(){
         clean_history(); 
         //Recalculate the load value
         load = 0.f;
-        for(int f : fps_history) load += (f / target_fps);
-        load /= fps_history.size();
+        for(int f : fps_history) load += (1.f - ((float)f / (float)target_fps));
+        load /= (float)fps_history.size();
+        std::cout << "Load: " << load << " | Fps: " << fps_history.back() << std::endl;
     }
 }

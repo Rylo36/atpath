@@ -10,6 +10,18 @@ namespace ap{
         private:
             std::vector<sf::Vector2f> positive_points;
             std::vector<sf::Vector2f> negative_points;
+            struct engineState{ //Engine State Variables
+                int cycle_count;
+                std::vector<sf::Vector2f> best_route;
+                std::vector<sf::Vector2f> nodes;
+                sf::Vector2f head;
+                bool fault;
+            Tmr pf{30};
+            std::vector<std::vector<sf::Vector2f>> routes;
+            std::vector<sf::Rect<float>> obstacles;
+            sf::Vector2f origin;
+            } eS;
+            void engine(int cycles=10);
             void writeRoute(std::vector<sf::Vector2f> write_route); 
             float getPointWeight(sf::Vector2f point); //Get the current weight of a location
             bool checkPath(std::vector<sf::Vector2f> path);//Check to ensure that a path is valid
@@ -25,7 +37,7 @@ namespace ap{
             sf::Vector2f origin;
             sf::Vector2f destination;
             AtPath(sf::Vector2f start, sf::Vector2f stop);
-            std::vector<sf::Vector2f> route(int cycles=200); //Generates a route or improves an existing one
+            void route(int cycles=200); //Generates a route or improves an existing one
             std::vector<sf::Vector2f> getBestRoute();
             void reset(bool hard = false); //Reset path learning (use if the destination, obstacles, or origin has changed)
             std::vector<sf::Vector2f> reroute(int cycles=200);

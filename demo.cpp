@@ -1,6 +1,6 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "atpath/atpath.hpp"
+#include "atpath/handler.hpp"
 
 sf::Vector2f res{1000.f,1000.f};
 
@@ -51,7 +51,7 @@ void RoutesToPoints(){
         }
         points.push_back(circles);
     }
-    std::cout << "Routes Stored: " << points.size() << std::endl;
+    //std::cout << "Routes Stored: " << points.size() << std::endl;
     ApplyColors();
 }
 
