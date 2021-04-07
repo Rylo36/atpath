@@ -11,6 +11,8 @@ std::vector<std::vector<sf::CircleShape>> points;
 
 ap::AtPath atpath(pawn.getPosition(),destination.getPosition());
 
+bool realtime{false};
+
 std::vector<sf::Rect<float>> BlocksToBounds(std::vector<sf::RectangleShape> blks){
     std::vector<sf::Rect<float>> vec;
     for(sf::RectangleShape b : blks)
@@ -63,6 +65,10 @@ void Input(sf::Window &w){
         if(valid) destination.setPosition(pos);
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) blocks.clear();
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
+        if(realtime) realtime = false;
+        else realtime = true;
+    }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)){atpath.reroute(); RoutesToPoints();}
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
         atpath.obstacles = BlocksToBounds(blocks);
@@ -102,6 +108,17 @@ int main(){
         sf::Event event;
         while(window.pollEvent(event)){if(event.type == sf::Event::Closed) window.close();}
         Input(window);
+
+        //Realtime Pathfinding
+        if(realtime){
+            atpath.obstacles = BlocksToBounds(blocks);
+            atpath.origin = pawn.getPosition();
+            atpath.destination = destination.getPosition();
+            atpath.realtime();
+            RoutesToPoints();
+        }
+
+
         //atpath.improve_route();
         window.clear(sf::Color::Black);
         window.draw(destination);

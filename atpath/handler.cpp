@@ -1,9 +1,13 @@
 #include "atpath.hpp"
-
+#define QUICK_MODE 1
 
 
 ap::AtPath::AtPath(sf::Vector2f start, sf::Vector2f stop){
     origin = start; destination = stop;
+}
+
+int ap::AtPath::getMS(){
+    return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 void ap::AtPath::reset(bool hard){
@@ -25,26 +29,6 @@ void ap::AtPath::writeRoute(std::vector<sf::Vector2f> write_route){
     routes.push_back(write_route);
 }
 
-std::vector<sf::Vector2f> ap::AtPath::improve_route(int cycles){
-    std::vector<sf::Vector2f> path = getBestRoute();
-    if(path.size() == 0) return path;
-    std::vector<std::vector<sf::Vector2f>> contenders;
-    contenders.push_back(path);
-    for(int i{0}; i < cycles; i++){
-        positive_points.clear();
-        negative_points.erase(negative_points.begin());
-        std::vector<sf::Vector2f> r = route(5);
-        contenders.push_back(r);
-    }
-
-    std::vector<sf::Vector2f> best_path = path;
-    for(std::vector<sf::Vector2f> p : contenders){
-        if(getCost(p) < getCost(best_path)) best_path = p;
-    }
-    path = best_path;
-    return best_path;
-}
-
 std::vector<sf::Vector2f> ap::AtPath::reroute(int cycles){
     std::vector<sf::Vector2f> old_path;
     if(routes.size() > 0) old_path = routes.back();
@@ -55,15 +39,14 @@ std::vector<sf::Vector2f> ap::AtPath::reroute(int cycles){
     return r;
 }
 
-
 std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
     std::vector<sf::Vector2f> best_route;
     for(int tries{0}; tries < cycles; tries++){
         std::vector<sf::Vector2f> nodes;
         sf::Vector2f head{origin};
         bool stop = false;
-        while(getDistance(head, destination) > 5.f && !stop){
-            float increment{5.f};
+        while(getDistance(head, destination) > 10.f && !stop){
+            float increment{10.f};
             
             sf::Vector2f best{head};
 
@@ -77,10 +60,9 @@ std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
             if(best != head){nodes.push_back(best); head = best;}
             else{
                 //Oh no we might be stuck in a bad path
-                if(getDistance(head,destination) > 10.f){
-                    //Check to ensure that we are not at the destination, then declare this path a fail
-                    stop = true;
-                }
+                if(getDistance(head,destination) > 10.f) stop = true; //Check to ensure that we are not at the destination, then declare this path a fail
+                    
+                    
             }
             if(nodes.size() > 1000) stop = true; //Overflow detection. Can hinder long routes though.
         }
@@ -89,15 +71,17 @@ std::vector<sf::Vector2f> ap::AtPath::route(int cycles){
         if(checkPath(nodes)){if(getCost(nodes) < getCost(best_route)) best_route = nodes;}
 
         //Apply new weights
-        if(checkPath(nodes)){for(sf::Vector2f n : nodes) positive_points.push_back(n);}
-        else{for(sf::Vector2f n : nodes) negative_points.push_back(n);}
+        if(checkPath(nodes)){
+            positive_points.insert(positive_points.end(), nodes.begin(), nodes.end());
+            if(QUICK_MODE){writeRoute(best_route); return nodes;}
+        }
+        else negative_points.insert(negative_points.end(), nodes.begin(), nodes.end());
         std::cout << getCost(best_route) << "(" << checkPath(nodes) << ")" << std::endl;
-        std::cout << "+" << negative_points.size() << " | -" << negative_points.size() << std::endl; 
+        std::cout << "+" << positive_points.size() << " | -" << negative_points.size() << std::endl; 
     }
     writeRoute(best_route);
     return best_route;
 }
-
 
 float ap::AtPath::getPointWeight(sf::Vector2f point){
     float weight{0.f};
@@ -157,4 +141,9 @@ bool ap::AtPath::isValid(sf::Vector2f point){
         if(o.contains(point) || getDistance(sf::Vector2f{(float)(o.left + (o.width * 0.5)), (float)(o.top + (o.height * 0.5))},point) < o.height * 1.1) return false;
     }
     return true;
+}
+
+void ap::AtPath::realtime(){
+    if(routes.size() == 0) route(1);
+    if(routes.size() < 4) reroute(1);
 }

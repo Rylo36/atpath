@@ -2,7 +2,7 @@
 #include <iostream>
 #include <math.h>
 #include <SFML/Graphics.hpp>
-
+#include "perfmon.hpp"
 
 namespace ap{
 
@@ -19,6 +19,7 @@ namespace ap{
             bool isValid(sf::Vector2f point);//Check to see if the point intersects with an obstacle
             std::vector<sf::Vector2f> SimplifyNodes(std::vector<sf::Vector2f> nodes);//Simplify a vector of nodes (get rid of unrequired points)
         public:
+            Tmr pf{30};
             std::vector<std::vector<sf::Vector2f>> routes;
             std::vector<sf::Rect<float>> obstacles;
             sf::Vector2f origin;
@@ -28,6 +29,6 @@ namespace ap{
             std::vector<sf::Vector2f> getBestRoute();
             void reset(bool hard = false); //Reset path learning (use if the destination, obstacles, or origin has changed)
             std::vector<sf::Vector2f> reroute(int cycles=200);
-            std::vector<sf::Vector2f> improve_route(int cycles=1); //Light weight task meant to improve upon and/or find better routes in the background
+            void realtime(); //Light weight task meant to improve upon and/or find better routes in the background
     };
 }
