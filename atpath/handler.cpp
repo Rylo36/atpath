@@ -7,6 +7,9 @@ ap::AtPath::AtPath(sf::Vector2f start, sf::Vector2f stop){
 }
 
 void ap::AtPath::reset(bool hard){
+    eS.cycle_count = 0;
+    eS.nodes.clear();
+    eS.done = false; eS.fault = false;
     positive_points.clear();
     negative_points.clear();
     if(hard) routes.clear();
@@ -25,14 +28,13 @@ void ap::AtPath::writeRoute(std::vector<sf::Vector2f> write_route){
     routes.push_back(write_route);
 }
 
-std::vector<sf::Vector2f> ap::AtPath::reroute(int cycles){
+void ap::AtPath::reroute(){
     std::vector<sf::Vector2f> old_path;
     if(routes.size() > 0) old_path = routes.back();
     reset();
     for(int i{0}; i < 4; i++) {for(sf::Vector2f n : old_path) negative_points.push_back(n);}
-    std::vector<sf::Vector2f> r = route(cycles);
-    writeRoute(r);
-    return r;
+    eS.done = false;
+    return;
 }
 
 
@@ -99,6 +101,9 @@ bool ap::AtPath::isValid(sf::Vector2f point){
 
 void ap::AtPath::realtime(){
     pf.update();
-    if(routes.size() == 0) route(1);
-    if(routes.size() < 4 && pf.load < 0.3f) reroute(1);
+    if(routes.size() < 4){
+        int cc = 100 * (pf.getFPS() / pf.target_fps);
+        engine(cc);
+        if(eS.done){reroute(); std::cout << "Rerouting..." << std::endl;}
+    }
 }

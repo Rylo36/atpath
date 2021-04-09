@@ -13,6 +13,7 @@ class Tmr{ //Performance monitor and load management
         int getE(); //Get seconds since the epoch
     public:
     int target_fps; //Target framerate that the load value is based on
+    int getFPS();
     float load; //Value of how loaded the system is (high value = significant load)
     void update(); //Should be ran every frame or else measurements will be off
     Tmr(int t_fps);

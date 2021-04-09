@@ -66,21 +66,20 @@ void Input(sf::Window &w){
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) blocks.clear();
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
-        if(realtime) realtime = false;
-        else realtime = true;
+        std::cout << atpath.routes.size() << " FAULT:" << atpath.eS.fault << " DONE:" << atpath.eS.fault << " NODES:" << atpath.eS.nodes.size() << std::endl;
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)){atpath.reroute(); RoutesToPoints();}
+    /*if(sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)){atpath.reroute(); RoutesToPoints();}
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
         atpath.obstacles = BlocksToBounds(blocks);
         atpath.origin = pawn.getPosition();
         atpath.destination = destination.getPosition();
-        atpath.route();
         RoutesToPoints();
-    }
+    }*/
     if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
         sf::Vector2f pos{(float)sf::Mouse::getPosition(w).x, (float)sf::Mouse::getPosition(w).y};
         bool valid = true;
         for(sf::RectangleShape b : blocks) if(b.getGlobalBounds().contains(pos)) valid = false;
+        atpath.reset(true);
         if(valid){
         sf::RectangleShape b{sf::Vector2f(20.f,20.f)};
         b.setPosition(pos);
@@ -109,7 +108,7 @@ int main(){
         while(window.pollEvent(event)){if(event.type == sf::Event::Closed) window.close();}
         Input(window);
 
-        //Realtime Pathfinding
+        /*Realtime Pathfinding
         if(realtime){
             atpath.obstacles = BlocksToBounds(blocks);
             atpath.origin = pawn.getPosition();
@@ -117,6 +116,12 @@ int main(){
             atpath.realtime();
             RoutesToPoints();
         }
+        */
+        atpath.obstacles = BlocksToBounds(blocks);
+        atpath.origin = pawn.getPosition();
+        atpath.destination = destination.getPosition();
+        RoutesToPoints();
+        atpath.realtime();
 
 
         //atpath.improve_route();

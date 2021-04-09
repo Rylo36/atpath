@@ -10,17 +10,6 @@ namespace ap{
         private:
             std::vector<sf::Vector2f> positive_points;
             std::vector<sf::Vector2f> negative_points;
-            struct engineState{ //Engine State Variables
-                int cycle_count;
-                std::vector<sf::Vector2f> best_route;
-                std::vector<sf::Vector2f> nodes;
-                sf::Vector2f head;
-                bool fault;
-            Tmr pf{30};
-            std::vector<std::vector<sf::Vector2f>> routes;
-            std::vector<sf::Rect<float>> obstacles;
-            sf::Vector2f origin;
-            } eS;
             void engine(int cycles=10);
             void writeRoute(std::vector<sf::Vector2f> write_route); 
             float getPointWeight(sf::Vector2f point); //Get the current weight of a location
@@ -31,6 +20,14 @@ namespace ap{
             bool isValid(sf::Vector2f point);//Check to see if the point intersects with an obstacle
             std::vector<sf::Vector2f> SimplifyNodes(std::vector<sf::Vector2f> nodes);//Simplify a vector of nodes (get rid of unrequired points)
         public:
+                    struct engineState{ //Engine State Variables
+                int cycle_count;
+                //std::vector<sf::Vector2f> best_route;
+                std::vector<sf::Vector2f> nodes;
+                sf::Vector2f head;
+                bool fault;
+                bool done;
+            } eS;
             Tmr pf{30};
             std::vector<std::vector<sf::Vector2f>> routes;
             std::vector<sf::Rect<float>> obstacles;
@@ -40,7 +37,7 @@ namespace ap{
             void route(int cycles=200); //Generates a route or improves an existing one
             std::vector<sf::Vector2f> getBestRoute();
             void reset(bool hard = false); //Reset path learning (use if the destination, obstacles, or origin has changed)
-            std::vector<sf::Vector2f> reroute(int cycles=200);
+            void reroute();
             void realtime(); //Light weight task meant to improve upon and/or find better routes in the background
     };
 }

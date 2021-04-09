@@ -10,6 +10,10 @@ int Tmr::getE(){
     return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
+int Tmr::getFPS(){
+    return fps_history.back();
+}
+
 void Tmr::update(){
     current_count += 1;
    
