@@ -17,9 +17,7 @@ void ap::AtPath::reset(bool hard){
 
 std::vector<sf::Vector2f> ap::AtPath::getBestRoute(){
     std::vector<sf::Vector2f> best_route;
-    for(std::vector<sf::Vector2f> r : routes){
-        if(getCost(r) < getCost(best_route) || getCost(best_route) == 0) best_route = r;
-    }
+    for(std::vector<sf::Vector2f> r : routes) if(getCost(r) < getCost(best_route) || getCost(best_route) == 0) best_route = r;
     return best_route;
 }
 
@@ -102,8 +100,8 @@ bool ap::AtPath::isValid(sf::Vector2f point){
 void ap::AtPath::realtime(){
     pf.update();
     if(routes.size() < 4){
-        int cc = 100 * (pf.getFPS() / pf.target_fps);
+        int cc = 200 * (pf.getFPS() / pf.target_fps);
         engine(cc);
-        if(eS.done){reroute(); std::cout << "Rerouting..." << std::endl;}
+        if(eS.done) reroute();
     }
 }

@@ -19,12 +19,6 @@ std::vector<sf::Rect<float>> BlocksToBounds(std::vector<sf::RectangleShape> blks
         vec.push_back(b.getGlobalBounds());
     return vec;
 }
-/*
-std::vector<sf::Vector2f> PointToRoute(std::vector<sf::CircleShape> circles){
-    std::vector<sf::Vector2f> path;
-    for(sf::CircleShape c : circles) path.push_back(c.getPosition());
-    return path;
-}*/
 
 void ApplyColors(){
     std::vector<sf::Vector2f> best_route = atpath.getBestRoute();
@@ -35,9 +29,6 @@ void ApplyColors(){
             }     
     }
 }
-
-
-
 
 void RoutesToPoints(){
     points.clear();
@@ -51,7 +42,6 @@ void RoutesToPoints(){
         }
         points.push_back(circles);
     }
-    //std::cout << "Routes Stored: " << points.size() << std::endl;
     ApplyColors();
 }
 
@@ -65,16 +55,7 @@ void Input(sf::Window &w){
         if(valid) destination.setPosition(pos);
     }
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) blocks.clear();
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)){
-        std::cout << atpath.routes.size() << " FAULT:" << atpath.eS.fault << " DONE:" << atpath.eS.fault << " NODES:" << atpath.eS.nodes.size() << std::endl;
-    }
-    /*if(sf::Keyboard::isKeyPressed(sf::Keyboard::LAlt)){atpath.reroute(); RoutesToPoints();}
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
-        atpath.obstacles = BlocksToBounds(blocks);
-        atpath.origin = pawn.getPosition();
-        atpath.destination = destination.getPosition();
-        RoutesToPoints();
-    }*/
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::R)) atpath.reset(true);
     if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
         sf::Vector2f pos{(float)sf::Mouse::getPosition(w).x, (float)sf::Mouse::getPosition(w).y};
         bool valid = true;
@@ -107,24 +88,12 @@ int main(){
         sf::Event event;
         while(window.pollEvent(event)){if(event.type == sf::Event::Closed) window.close();}
         Input(window);
-
-        /*Realtime Pathfinding
-        if(realtime){
-            atpath.obstacles = BlocksToBounds(blocks);
-            atpath.origin = pawn.getPosition();
-            atpath.destination = destination.getPosition();
-            atpath.realtime();
-            RoutesToPoints();
-        }
-        */
         atpath.obstacles = BlocksToBounds(blocks);
         atpath.origin = pawn.getPosition();
         atpath.destination = destination.getPosition();
         RoutesToPoints();
         atpath.realtime();
 
-
-        //atpath.improve_route();
         window.clear(sf::Color::Black);
         window.draw(destination);
         window.draw(pawn);
