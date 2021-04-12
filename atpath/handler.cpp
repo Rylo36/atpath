@@ -57,8 +57,8 @@ bool ap::AtPath::checkPath(std::vector<sf::Vector2f> path){
     bool valid = true;
     if(path.size() == 0) return false; 
     for(sf::Vector2f p : path) if(!isValid(p)) valid = false;
-    if(getDistance(path[0], origin) > 10.f) valid = false;
-    if(getDistance(path[path.size() - 1], destination) > 10.f) valid = false;
+    if(getDistance(path[0], origin) > config.point_distance * 2) valid = false;
+    if(getDistance(path[path.size() - 1], destination) > config.point_distance * 2) valid = false;
     return valid;
 }
 
@@ -99,7 +99,7 @@ bool ap::AtPath::isValid(sf::Vector2f point){
 
 void ap::AtPath::realtime(){
     pf.update();
-    if(routes.size() < 4){
+    if(routes.size() < 8){
         int cc = 200 * (pf.getFPS() / pf.target_fps);
         engine(cc);
         if(eS.done) reroute();

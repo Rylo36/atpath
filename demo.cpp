@@ -83,7 +83,7 @@ int main(){
     pawn.setPosition(sf::Vector2f{500.f,500.f});
 
     sf::RenderWindow window{sf::VideoMode(res.x,res.y),"AtPath Demo"};
-    window.setFramerateLimit(30);
+    window.setFramerateLimit(60);
     while(window.isOpen()){
         sf::Event event;
         while(window.pollEvent(event)){if(event.type == sf::Event::Closed) window.close();}

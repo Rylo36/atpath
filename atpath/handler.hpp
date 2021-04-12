@@ -8,6 +8,14 @@ namespace ap{
 
     class AtPath{
         private:
+            struct engineState{ //Engine State Variables
+                int cycle_count;
+                //std::vector<sf::Vector2f> best_route;
+                std::vector<sf::Vector2f> nodes;
+                sf::Vector2f head;
+                bool fault;
+                bool done;
+            } eS;
             std::vector<sf::Vector2f> positive_points;
             std::vector<sf::Vector2f> negative_points;
             void engine(int cycles=10);
@@ -20,15 +28,11 @@ namespace ap{
             bool isValid(sf::Vector2f point);//Check to see if the point intersects with an obstacle
             std::vector<sf::Vector2f> SimplifyNodes(std::vector<sf::Vector2f> nodes);//Simplify a vector of nodes (get rid of unrequired points)
         public:
-                    struct engineState{ //Engine State Variables
-                int cycle_count;
-                //std::vector<sf::Vector2f> best_route;
-                std::vector<sf::Vector2f> nodes;
-                sf::Vector2f head;
-                bool fault;
-                bool done;
-            } eS;
-            Tmr pf{30};
+            struct Config{ //Configuration parameters
+                float point_distance = 10.f;
+                float max_distance = 2000.f;
+            } config;
+            Tmr pf{60};
             std::vector<std::vector<sf::Vector2f>> routes;
             std::vector<sf::Rect<float>> obstacles;
             sf::Vector2f origin;
