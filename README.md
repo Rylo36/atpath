@@ -6,6 +6,13 @@ Simply copy the atpath directory over to your project (or to /usr/include/ if yo
 
 After including, all components of the library are stored under the **at** namespace
 
+## Demo Controls
+ - Left mouse button : Move the destination to the cursor location
+ - Right mouse button : Create an obstacle where the cursor is
+ - Space : Remove all obstacles
+ - R : Reset the engine
+
+
 ## How to Use
 ### Creating an atpath object
 *Note: Everything in this library is stored under the ap namespace*

@@ -34,7 +34,7 @@ namespace ap{
                 int route_count = 4; //Number of routes to generate 
                 int target_fps = 60; //Target frame rate
                 int cycle_count_max = 200; //How many cycles to run based on load, Cycles processed is a percent of this multiplied by fps.
-                int reroute_strength = 4; //Multiplyer of how strong avoiding an old path is in terms of finding a new path.
+                int reroute_strength = 2; //Multiple of how strong avoiding an old path is in terms of finding a new path.
             } config;
             Tmr pf{config.target_fps};
             std::vector<std::vector<sf::Vector2f>> routes;
