@@ -30,7 +30,7 @@ void ap::AtPath::reroute(){
     std::vector<sf::Vector2f> old_path;
     if(routes.size() > 0) old_path = routes.back();
     reset();
-    for(int i{0}; i < 4; i++) {for(sf::Vector2f n : old_path) negative_points.push_back(n);}
+    for(int i{0}; i < config.reroute_strength; i++) {for(sf::Vector2f n : old_path) negative_points.push_back(n);}
     eS.done = false;
     return;
 }
@@ -97,10 +97,17 @@ bool ap::AtPath::isValid(sf::Vector2f point){
     return true;
 }
 
+void ap::AtPath::route(){
+    if(routes.size() < config.route_count){
+        int cc = config.cycle_count_max;
+        while(!eS.done){engine(cc);}
+    }
+}
+
 void ap::AtPath::realtime(){
     pf.update();
-    if(routes.size() < 8){
-        int cc = 200 * (pf.getFPS() / pf.target_fps);
+    if(routes.size() < config.route_count){
+        int cc = config.cycle_count_max * (pf.getFPS() / pf.target_fps);
         engine(cc);
         if(eS.done) reroute();
     }

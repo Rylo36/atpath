@@ -29,19 +29,23 @@ namespace ap{
             std::vector<sf::Vector2f> SimplifyNodes(std::vector<sf::Vector2f> nodes);//Simplify a vector of nodes (get rid of unrequired points)
         public:
             struct Config{ //Configuration parameters
-                float point_distance = 10.f;
-                float max_distance = 2000.f;
+                float point_distance = 10.f; //Maximum distance between route points
+                float max_distance = 2000.f; //Maximum distance to pathfind over
+                int route_count = 4; //Number of routes to generate 
+                int target_fps = 60; //Target frame rate
+                int cycle_count_max = 200; //How many cycles to run based on load, Cycles processed is a percent of this multiplied by fps.
+                int reroute_strength = 4; //Multiplyer of how strong avoiding an old path is in terms of finding a new path.
             } config;
-            Tmr pf{60};
+            Tmr pf{config.target_fps};
             std::vector<std::vector<sf::Vector2f>> routes;
             std::vector<sf::Rect<float>> obstacles;
             sf::Vector2f origin;
             sf::Vector2f destination;
             AtPath(sf::Vector2f start, sf::Vector2f stop);
-            void route(int cycles=200); //Generates a route or improves an existing one
+            void route(); //Non-realtime function for generating a route
             std::vector<sf::Vector2f> getBestRoute();
             void reset(bool hard = false); //Reset path learning (use if the destination, obstacles, or origin has changed)
-            void reroute();
+            void reroute(); //Resets the route engine and sets the current valid route as a negative (to encourage a different path) 
             void realtime(); //Light weight task meant to improve upon and/or find better routes in the background
     };
 }
